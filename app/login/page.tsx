@@ -48,7 +48,7 @@ export default function Page() {
               <TextField.Input
                 size="3"
                 onChange={(e) => setPassword(e.target.value)}
-                type="text"
+                type="password"
               ></TextField.Input>
             </Box>
             <Box>
