@@ -26,13 +26,13 @@ import { extendOccupancyAction } from "./actions/extend-occupied-room";
 export default function Home() {
   const [cookies, setCookies, removeCookies] = useCookies();
 
-  const { data, isPending } = useQuery({
+  const { data, isPending, isFetching } = useQuery({
     queryKey: ["list-of-rooms"],
     queryFn: async () => JSON.parse(await listOfRoomAction()),
   });
   const router = useRouter();
 
-  if (isPending) {
+  if (isPending || isFetching) {
     return (
       <Box>
         <Heading>Loading....</Heading>
@@ -163,14 +163,18 @@ const AvailableRoom = ({ data }) => {
 
                   <Flex gap="3" mt="4" justify="end">
                     <Dialog.Close>
-                      <Button variant="soft" color="gray">
-                        Cancel
-                      </Button>
+                      <Box>
+                        <Button variant="soft" color="gray">
+                          Cancel
+                        </Button>
+                      </Box>
                     </Dialog.Close>
                     <Dialog.Close>
-                      <Button onClick={() => occupyRoom(room.room_number)}>
-                        Save
-                      </Button>
+                      <Box>
+                        <Button onClick={() => occupyRoom(room.room_number)}>
+                          Save
+                        </Button>
+                      </Box>
                     </Dialog.Close>
                   </Flex>
                 </Dialog.Content>
@@ -308,53 +312,57 @@ const OccupiedRoom = ({ data }) => {
                     ></TextField.Input>
                     <Flex mt="5" justify="end" gap={"2"}>
                       <Dialog.Close>
-                        <Button
-                          onClick={async () => {
-                            const toastID = toast.loading(
-                              "Updating the room..."
-                            );
-                            const result = await extendOccupancyAction({
-                              room_number: room.room_number,
-                              additional_hours: additionalHours,
-                            });
-                            if (result.success) {
-                              await queryClient.refetchQueries();
-                              toast.update(toastID, {
-                                type: "success",
-                                render: result.message,
-                                isLoading: false,
-                                autoClose: 3000,
+                        <Box>
+                          <Button
+                            onClick={async () => {
+                              const toastID = toast.loading(
+                                "Updating the room..."
+                              );
+                              const result = await extendOccupancyAction({
+                                room_number: room.room_number,
+                                additional_hours: additionalHours,
                               });
-                            } else {
-                              toast.update(toastID, {
-                                type: "error",
-                                render: result.message,
-                                isLoading: false,
-                                autoClose: 3000,
-                              });
-                            }
-                          }}
-                        >
-                          Extend Session
-                        </Button>
+                              if (result.success) {
+                                await queryClient.refetchQueries();
+                                toast.update(toastID, {
+                                  type: "success",
+                                  render: result.message,
+                                  isLoading: false,
+                                  autoClose: 3000,
+                                });
+                              } else {
+                                toast.update(toastID, {
+                                  type: "error",
+                                  render: result.message,
+                                  isLoading: false,
+                                  autoClose: 3000,
+                                });
+                              }
+                            }}
+                          >
+                            Extend Session
+                          </Button>
+                        </Box>
                       </Dialog.Close>
                       <Dialog.Close>
-                        <Button
-                          color="red"
-                          onClick={async () => {
-                            const result = await unoccupyRoomAction({
-                              room_number: room.room_number,
-                            });
-                            if (result.success) {
-                              toast.success(result.message);
-                              queryClient.refetchQueries();
-                            } else {
-                              toast.error(result.message);
-                            }
-                          }}
-                        >
-                          End Session
-                        </Button>
+                        <Box>
+                          <Button
+                            color="red"
+                            onClick={async () => {
+                              const result = await unoccupyRoomAction({
+                                room_number: room.room_number,
+                              });
+                              if (result.success) {
+                                toast.success(result.message);
+                                queryClient.refetchQueries();
+                              } else {
+                                toast.error(result.message);
+                              }
+                            }}
+                          >
+                            End Session
+                          </Button>
+                        </Box>
                       </Dialog.Close>
                     </Flex>
                   </Box>

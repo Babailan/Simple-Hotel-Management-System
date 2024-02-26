@@ -1,9 +1,20 @@
+"use client";
+
 import { Box, Button, Flex, Heading, Table } from "@radix-ui/themes";
 import { getHistoryAction } from "../actions/get-history";
 import Link from "next/link";
+import { useQuery } from "@tanstack/react-query";
 
-export default async function Page() {
-  const data = await getHistoryAction();
+export default function Page() {
+  const { data, isPending } = useQuery({
+    queryKey: ["history-action-get"],
+    queryFn: async () => await getHistoryAction(),
+  });
+
+  if (isPending) {
+    return <></>;
+  }
+
   return (
     <Box className="space-y-3">
       <Flex justify="between">

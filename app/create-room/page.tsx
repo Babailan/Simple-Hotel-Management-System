@@ -15,16 +15,22 @@ export default function Page() {
     if (!roomNumber.trim() && !roomDescription.trim() && !perHourPrice.trim()) {
       return;
     }
+    const loadingId = toast.loading("Room creating...");
     const result = await createRoomAction({
       room_description: roomDescription,
       per_hour_price: perHourPrice,
       room_number: roomNumber,
     });
     if (result.success) {
-      toast.success("Successfully added");
       setRoomNumber("");
       setRoomDescription("");
       setPerHourPrice("");
+      toast.update(loadingId, {
+        autoClose: 5000,
+        render: "Successfully added",
+        type: "success",
+        isLoading: false,
+      });
     } else {
       toast.error(result.message);
     }
