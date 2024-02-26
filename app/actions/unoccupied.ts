@@ -16,6 +16,21 @@ export async function unoccupyRoomAction({ room_number }) {
 
     const findResult = await roomCollection.findOne({ room_number });
 
+    let penalty = 0;
+    const currentDate = new Date();
+    const occupantIssuedEnd = findResult?.occupant_issued_end
+      ? new Date(findResult.occupant_issued_end)
+      : null;
+
+    if (
+      occupantIssuedEnd &&
+      occupantIssuedEnd.getTime() < currentDate.getTime()
+    ) {
+      const timeDifference =
+        Math.abs(currentDate.getTime() - occupantIssuedEnd.getTime()) /
+        (1000 * 60 * 60);
+      penalty = timeDifference * Number(findResult?.per_hour_price);
+    }
     if (findResult == null) {
       throw new Error("Room is not found.");
     }
@@ -38,7 +53,7 @@ export async function unoccupyRoomAction({ room_number }) {
     if (updated.modifiedCount === 1) {
       revalidatePath("/list-of-room");
       const { _id, ...result } = findResult;
-      const history = await rentHistory.insertOne(result);
+      const history = await rentHistory.insertOne({ ...result, penalty });
       if (history.acknowledged) {
         return {
           message: "Room unoccupied successfully",

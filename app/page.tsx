@@ -42,11 +42,14 @@ export default function Home() {
 
   return (
     <Box className="space-y-5">
-      <Box className="space-x-5">
+      <Flex justify="between">
         <Link href={"/create-room"} legacyBehavior passHref>
           <RadixLink>Create a Hotel Room</RadixLink>
         </Link>
-      </Box>
+        <Link href={"/history"} legacyBehavior passHref>
+          <RadixLink>History</RadixLink>
+        </Link>
+      </Flex>
 
       <OccupiedRoom data={data} />
       <AvailableRoom data={data} />
